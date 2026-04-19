@@ -10,7 +10,8 @@ import CartSidebar from './components/CartSidebar';
 
 import Home from './pages/Home';
 import Store from './pages/Store';
-import { About, Contact } from './pages/About';
+import { About } from './pages/About';       // About page only
+import Contact from './pages/Contact';        // Real API-connected Contact
 import { Login, Signup, Profile } from './pages/Auth';
 import Checkout from './pages/Checkout';
 import OrderTrack from './pages/OrderTrack';
@@ -32,18 +33,18 @@ const AppLayout = () => {
       {!hideChrome && <CartSidebar />}
       <main key={location.pathname}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/store" element={<Store />} />
+          <Route path="/"                element={<Home />} />
+          <Route path="/store"           element={<Store />} />
           <Route path="/store/:category" element={<Store />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/track-order" element={<OrderTrack />} />
-          <Route path="/policy/:type" element={<PolicyPage />} />
+          <Route path="/product/:id"     element={<ProductDetails />} />
+          <Route path="/about"           element={<About />} />
+          <Route path="/contact"         element={<Contact />} />
+          <Route path="/login"           element={<Login />} />
+          <Route path="/signup"          element={<Signup />} />
+          <Route path="/profile"         element={<Profile />} />
+          <Route path="/checkout"        element={<Checkout />} />
+          <Route path="/track-order"     element={<OrderTrack />} />
+          <Route path="/policy/:type"    element={<PolicyPage />} />
         </Routes>
       </main>
       {!hideChrome && <FloatingButtons />}

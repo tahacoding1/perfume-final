@@ -138,3 +138,26 @@
     border-bottom: 2px solid var(--accent-color);
   }
 }
+
+/* ── Mobile: single column cards ─────────────────────────── */
+@media (max-width: 640px) {
+  .store-page .product-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 4px;
+  }
+
+  .store-page .product-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .store-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .store-container {
+    padding: 0 4%;
+  }
+}

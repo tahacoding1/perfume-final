@@ -2,11 +2,11 @@
 
 namespace App\Providers\Filament;
 
+use App\Models\User;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -28,31 +28,29 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => \Filament\Support\Colors\Color::hex('#8a1c3b'), // Burgundy
-                'danger' => \Filament\Support\Colors\Color::Rose,
-                'gray' => \Filament\Support\Colors\Color::Slate,
-                'info' => \Filament\Support\Colors\Color::Blue,
-                'success' => \Filament\Support\Colors\Color::Emerald,
-                'warning' => \Filament\Support\Colors\Color::Orange,
+                'primary' => Color::hex('#8a1c3b'), // Burgundy — LUMIÈRE brand color
+                'danger'  => Color::Rose,
+                'gray'    => Color::Slate,
+                'info'    => Color::Blue,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
             ])
-            ->brandName('Lumière Admin')
+            ->brandName('LUMIÈRE Admin')
             ->font('Outfit')
             ->sidebarCollapsibleOnDesktop()
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                // Default dashboard removed, Custom dashboard will be discovered.
-            ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                // Default widgets removed to clean up the dashboard.
-            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->widgets([])
+            // Only users with is_admin = true can access the panel
+            ->authGuard('web')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
-                ShareErrorsFromSession::class,
+                \Illuminate\View\Middleware\ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,

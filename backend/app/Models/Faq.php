@@ -8,5 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Faq extends Model
 {
     use HasFactory;
-    protected $fillable = ['question', 'answer', 'is_active'];
+
+    protected $fillable = ['question', 'answer', 'is_active', 'sort_order'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 }

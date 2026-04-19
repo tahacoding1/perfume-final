@@ -1,37 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { ChevronDown, ChevronUp, Star, ArrowRight } from 'lucide-react';
 import './Home.css';
 
-
+const API = 'http://127.0.0.1:8000/api';
 
 const Home = () => {
   const { addToCart } = useCart();
-  const [openFaq, setOpenFaq] = useState(null);
+  const [openFaq, setOpenFaq]                   = useState(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews]                   = useState([]);
+  const [faqs, setFaqs]                         = useState([]);
 
-  React.useEffect(() => {
-    import('axios').then(axios => {
-      axios.default.get('http://127.0.0.1:8000/api/products')
-        .then(res => setFeaturedProducts(res.data.slice(0, 4)));
+  useEffect(() => {
+    // Products
+    fetch(`${API}/products`)
+      .then(r => r.json())
+      .then(data => setFeaturedProducts(data.slice(0, 4)))
+      .catch(console.error);
 
-      axios.default.get('http://127.0.0.1:8000/api/reviews')
-        .then(res => setReviews(res.data));
-    });
+    // Reviews
+    fetch(`${API}/reviews`)
+      .then(r => r.json())
+      .then(setReviews)
+      .catch(console.error);
+
+    // FAQs — from database
+    fetch(`${API}/faqs`)
+      .then(r => r.json())
+      .then(setFaqs)
+      .catch(console.error);
   }, []);
 
-  const toggleFaq = (index) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
-
-  const FAQS = [
-    { question: "How long do your perfumes last?", answer: "Our signature and oud collections are formulated as Extrait de Parfum and last anywhere from 12-24 hours on skin, and even longer on clothes." },
-    { question: "Are your ingredients cruelty-free?", answer: "Yes, all our ingredients are ethically sourced and 100% cruelty-free. We do not test on animals." },
-    { question: "What is your return policy?", answer: "We offer a 7-day return policy for sealed, unopened products. Please note that tester boxes are final sale." },
-    { question: "Do you offer international shipping?", answer: "Currently, we only ship nationwide within Pakistan, but we are expanding internationally soon!" }
-  ];
+  const toggleFaq = (index) => setOpenFaq(openFaq === index ? null : index);
 
   return (
     <div className="home-page">
@@ -47,9 +49,9 @@ const Home = () => {
           </div>
         </div>
         <div className="hero-visual animate-fade-up" style={{ animationDelay: '0.2s' }}>
-          <img 
-            src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" 
-            alt="Luxury Perfume" 
+          <img
+            src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800"
+            alt="Luxury Perfume"
             className="hero-img"
           />
         </div>
@@ -58,30 +60,12 @@ const Home = () => {
       {/* MARQUEE */}
       <div className="marquee">
         <div className="marquee-track">
-          {/* Set 1 */}
-          <span>Oud</span><span className="dot">•</span>
-          <span>Attar</span><span className="dot">•</span>
-          <span>Signature</span><span className="dot">•</span>
-          <span>Loyalty</span><span className="dot">•</span>
-          <span>Gift Sets</span><span className="dot">•</span>
-          {/* Set 2 */}
-          <span>Oud</span><span className="dot">•</span>
-          <span>Attar</span><span className="dot">•</span>
-          <span>Signature</span><span className="dot">•</span>
-          <span>Loyalty</span><span className="dot">•</span>
-          <span>Gift Sets</span><span className="dot">•</span>
-          {/* Set 3 */}
-          <span>Oud</span><span className="dot">•</span>
-          <span>Attar</span><span className="dot">•</span>
-          <span>Signature</span><span className="dot">•</span>
-          <span>Loyalty</span><span className="dot">•</span>
-          <span>Gift Sets</span><span className="dot">•</span>
-          {/* Set 4 */}
-          <span>Oud</span><span className="dot">•</span>
-          <span>Attar</span><span className="dot">•</span>
-          <span>Signature</span><span className="dot">•</span>
-          <span>Loyalty</span><span className="dot">•</span>
-          <span>Gift Sets</span><span className="dot">•</span>
+          {['Oud','Attar','Signature','Loyalty','Gift Sets','Oud','Attar','Signature','Loyalty','Gift Sets','Oud','Attar','Signature','Loyalty','Gift Sets'].map((t, i, a) => (
+            <React.Fragment key={i}>
+              <span>{t}</span>
+              {i < a.length - 1 && <span className="dot">•</span>}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
@@ -96,31 +80,35 @@ const Home = () => {
         </div>
 
         <div className="product-grid">
-          {featuredProducts.map(product => (
-            <div key={product.id} className="product-card">
-              <div className="product-img">
-                <Link to={`/product/${product.id}`} className="img-link-wrapper">
-                  <span className="product-badge">{product.type}</span>
-                  <img src={product.image} alt={product.name} />
-                </Link>
-                <div className="product-overlay">
-                  <button className="btn btn-primary" onClick={() => addToCart(product)}>Add to Cart</button>
-                  <Link to={`/product/${product.id}`} className="btn btn-outline btn-slide-fill">View Details</Link>
-                </div>
-              </div>
-              <Link to={`/product/${product.id}`} className="product-info">
-                <h3>{product.name}</h3>
-                <span className="type">{product.type}</span>
-                <div className="product-meta">
-                  <span className="price">Rs. {product.price.toLocaleString()}</span>
-                  <div className="rating">
-                    <Star size={14} fill="currentColor" />
-                    <span>{product.rating}</span>
+          {featuredProducts.length === 0 ? (
+            <p style={{ color: 'var(--text-color)' }}>Loading...</p>
+          ) : (
+            featuredProducts.map(product => (
+              <div key={product.id} className="product-card">
+                <div className="product-img">
+                  <Link to={`/product/${product.id}`} className="img-link-wrapper">
+                    <span className="product-badge">{product.type}</span>
+                    <img src={product.image} alt={product.name} />
+                  </Link>
+                  <div className="product-overlay">
+                    <button className="btn btn-primary" onClick={() => addToCart(product)}>Add to Cart</button>
+                    <Link to={`/product/${product.id}`} className="btn btn-outline btn-slide-fill">View Details</Link>
                   </div>
                 </div>
-              </Link>
-            </div>
-          ))}
+                <Link to={`/product/${product.id}`} className="product-info">
+                  <h3>{product.name}</h3>
+                  <span className="type">{product.type}</span>
+                  <div className="product-meta">
+                    <span className="price">Rs. {product.price.toLocaleString()}</span>
+                    <div className="rating">
+                      <Star size={14} fill="currentColor" />
+                      <span>{product.rating}</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
@@ -130,37 +118,26 @@ const Home = () => {
         <div className="categories-grid">
           <Link to="/store/oud" className="cat-card cat-large">
             <img src="https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&q=80&w=800" alt="Oud" />
-            <div className="cat-info">
-              <h3>Majestic Oud</h3>
-              <span>Explore &rarr;</span>
-            </div>
+            <div className="cat-info"><h3>Majestic Oud</h3><span>Explore &rarr;</span></div>
           </Link>
           <div className="cat-column">
             <Link to="/store/attar" className="cat-card">
               <img src="https://images.unsplash.com/photo-1595532542520-21a473f32420?auto=format&fit=crop&q=80&w=400" alt="Attar" />
-              <div className="cat-info">
-                <h3>Pure Attar</h3>
-              </div>
+              <div className="cat-info"><h3>Pure Attar</h3></div>
             </Link>
             <Link to="/store/under1500" className="cat-card">
               <img src="https://images.unsplash.com/photo-1605369680376-795a973a4b95?auto=format&fit=crop&q=80&w=400" alt="Under 1500" />
-              <div className="cat-info">
-                <h3>Under Rs. 1500</h3>
-              </div>
+              <div className="cat-info"><h3>Under Rs. 1500</h3></div>
             </Link>
           </div>
           <div className="cat-column">
             <Link to="/store/giftbox" className="cat-card">
               <img src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?auto=format&fit=crop&q=80&w=400" alt="Gift Box" />
-              <div className="cat-info">
-                <h3>Gift Boxes</h3>
-              </div>
+              <div className="cat-info"><h3>Gift Boxes</h3></div>
             </Link>
             <Link to="/store/tester" className="cat-card">
               <img src="https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&q=80&w=400" alt="Tester Boxes" />
-              <div className="cat-info">
-                <h3>Tester Boxes</h3>
-              </div>
+              <div className="cat-info"><h3>Tester Boxes</h3></div>
             </Link>
           </div>
         </div>
@@ -173,11 +150,12 @@ const Home = () => {
           {reviews.length > 0 ? (
             <div className="reviews-carousel">
               <div className="reviews-track">
-                {/* Double array for infinite scroll effect */}
                 {[...reviews, ...reviews].map((review, idx) => (
                   <div key={idx} className="review-card">
                     <div className="stars">
-                      {[1,2,3,4,5].map(i => <Star key={i} size={16} fill={i <= review.rating ? "currentColor" : "none"} />)}
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} size={16} fill={i <= review.rating ? 'currentColor' : 'none'} />
+                      ))}
                     </div>
                     <p className="review-text">"{review.content}"</p>
                     <div className="review-author">
@@ -194,27 +172,31 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FAQS */}
+      {/* FAQS — from API */}
       <section className="section container faq-section">
         <span className="section-label text-center">Support</span>
         <h2 className="section-title text-center mb-5">Frequently Asked <em>Questions</em></h2>
-        
+
         <div className="faq-list">
-          {FAQS.map((faq, index) => (
-            <div 
-              key={index} 
-              className={`faq-item ${openFaq === index ? 'open' : ''}`}
-              onClick={() => toggleFaq(index)}
-            >
-              <div className="faq-question">
-                <h3>{faq.question}</h3>
-                {openFaq === index ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {faqs.length === 0 ? (
+            <p className="text-center" style={{ color: 'var(--text-color)' }}>Loading FAQs...</p>
+          ) : (
+            faqs.map((faq, index) => (
+              <div
+                key={faq.id || index}
+                className={`faq-item ${openFaq === index ? 'open' : ''}`}
+                onClick={() => toggleFaq(index)}
+              >
+                <div className="faq-question">
+                  <h3>{faq.question}</h3>
+                  {openFaq === index ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
+                <div className="faq-answer">
+                  <p>{faq.answer}</p>
+                </div>
               </div>
-              <div className="faq-answer">
-                <p>{faq.answer}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
     </div>

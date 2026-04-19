@@ -15,6 +15,8 @@ use App\Models\NewsletterSubscriber;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+// ─── PUBLIC ROUTES ────────────────────────────────────────────────────────
+
 Route::get('/products', function () {
     return Product::with('reviews')->get();
 });
@@ -37,16 +39,16 @@ Route::get('/reviews', function () {
 
 Route::post('/contact', function (Request $request) {
     $validated = $request->validate([
-        'name' => 'required|string',
-        'email' => 'required|email',
-        'subject' => 'required|string',
-        'message' => 'required|string'
+        'name'    => 'required|string|max:100',
+        'email'   => 'required|email',
+        'subject' => 'required|string|max:200',
+        'message' => 'required|string',
     ]);
     return ContactMessage::create($validated);
 });
 
 Route::get('/faqs', function () {
-    return Faq::where('is_active', true)->get();
+    return Faq::where('is_active', true)->orderBy('sort_order')->get();
 });
 
 Route::get('/pages/{slug}', function ($slug) {
@@ -54,48 +56,109 @@ Route::get('/pages/{slug}', function ($slug) {
 });
 
 Route::post('/newsletter/subscribe', function (Request $request) {
-    $validated = $request->validate(['email' => 'required|email|unique:newsletter_subscribers,email']);
+    $validated = $request->validate([
+        'email' => 'required|email|unique:newsletter_subscribers,email',
+    ]);
     return NewsletterSubscriber::create($validated);
 });
 
-// Auth Routes (Sanctum Tokens)
+// ─── AUTH ROUTES ──────────────────────────────────────────────────────────
+
 Route::post('/login', function (Request $request) {
-    $request->validate(['email' => 'required|email', 'password' => 'required']);
+    $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+    ]);
+
     $user = User::where('email', $request->email)->first();
+
     if (! $user || ! Hash::check($request->password, $user->password)) {
-        throw ValidationException::withMessages(['email' => ['Credentials do not match.']]);
+        throw ValidationException::withMessages([
+            'email' => ['These credentials do not match our records.'],
+        ]);
     }
-    return ['user' => $user, 'token' => $user->createToken('auth-token')->plainTextToken];
+
+    return [
+        'user'  => $user,
+        'token' => $user->createToken('auth-token')->plainTextToken,
+    ];
 });
 
 Route::post('/register', function (Request $request) {
-    $request->validate(['name' => 'required', 'email' => 'required|email|unique:users', 'password' => 'required|min:6']);
+    $request->validate([
+        'name'     => 'required|string|max:100',
+        'email'    => 'required|email|unique:users',
+        'password' => 'required|min:6',
+    ]);
+
     $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
+        'name'     => $request->name,
+        'email'    => $request->email,
         'password' => Hash::make($request->password),
     ]);
-    return ['user' => $user, 'token' => $user->createToken('auth-token')->plainTextToken];
+
+    return [
+        'user'  => $user,
+        'token' => $user->createToken('auth-token')->plainTextToken,
+    ];
 });
 
+// ─── PUBLIC ORDER TRACKING ────────────────────────────────────────────────
+// Allows anyone to track an order by entering "ORD-{id}" — no auth needed.
+
+Route::get('/track/{orderId}', function ($orderId) {
+    // Accept both "ORD-12" and plain "12"
+    $id = ltrim(str_replace('ORD-', '', strtoupper($orderId)), '0') ?: $orderId;
+
+    $order = Order::find((int) $id);
+
+    if (! $order) {
+        return response()->json(['message' => 'Order not found.'], 404);
+    }
+
+    return [
+        'id'               => $order->id,
+        'order_id'         => 'ORD-' . $order->id,
+        'status'           => $order->status,
+        'tracking_number'  => $order->tracking_number ?? null,
+        'total_price'      => $order->total_price,
+        'created_at'       => $order->created_at,
+        'shipping_address' => is_string($order->shipping_address)
+                                ? json_decode($order->shipping_address, true)
+                                : $order->shipping_address,
+    ];
+});
+
+// ─── PROTECTED ROUTES (Sanctum) ───────────────────────────────────────────
+
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
     Route::post('/orders', function (Request $request) {
-         $order = Order::create([
-             'user_id' => $request->user()->id,
-             'total_price' => $request->total_price,
-             'shipping_address' => json_encode($request->shipping_details),
-             'payment_method' => $request->payment_method,
-             'items' => $request->items,
-             'status' => 'pending'
-         ]);
-         return $order;
+        $order = Order::create([
+            'user_id'          => $request->user()->id,
+            'total_price'      => $request->total_price,
+            'shipping_address' => json_encode($request->shipping_details),
+            'payment_method'   => $request->payment_method,
+            'items'            => $request->items,
+            'status'           => 'pending',
+        ]);
+        return $order;
     });
 
     Route::get('/user/orders', function (Request $request) {
-        return Order::where('user_id', $request->user()->id)->orderBy('created_at', 'desc')->get();
+        return Order::where('user_id', $request->user()->id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+    });
+
+    // Update profile name (safe fields only)
+    Route::put('/user', function (Request $request) {
+        $user = $request->user();
+        $user->update($request->only(['name', 'phone', 'address']));
+        return $user;
     });
 });

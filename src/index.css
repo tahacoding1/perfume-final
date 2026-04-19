@@ -203,3 +203,218 @@ ul {
 main {
   flex: 1;
 }
+
+/* ─── SKELETON SHIMMER ─────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--card-bg) 25%,
+    var(--border-color) 50%,
+    var(--card-bg) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  display: block;
+}
+
+/* ─── ORDER CARDS (Profile) ─────────────────────────────────── */
+.order-card {
+  padding: 16px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--card-bg);
+  transition: border-color 0.3s;
+}
+
+.order-card:hover {
+  border-color: var(--accent-color);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.order-status-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.order-card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ─── TRACKING MODAL ────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-box {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 36px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin: 0;
+}
+
+.modal-header h3 em {
+  font-style: italic;
+  color: var(--accent-color);
+}
+
+.track-summary {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding: 16px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.track-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.track-summary small {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.track-summary strong {
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+/* Mini timeline in modal */
+.mini-timeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.mini-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.35;
+  transition: opacity 0.3s;
+  min-width: 80px;
+}
+
+.mini-step.active {
+  opacity: 1;
+}
+
+.mini-step-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.3s;
+}
+
+.mini-step.active .mini-step-icon {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: rgba(138,28,59,0.1);
+}
+
+.mini-step span {
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.mini-step.active span {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.mini-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  min-width: 20px;
+  margin-bottom: 20px;
+  transition: background 0.3s;
+}
+
+.mini-connector.active {
+  background: var(--accent-color);
+}
+
+/* ─── Store cat count badge ─────────────────────────────────── */
+.cat-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--card-bg);
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+/* Mobile filter toggle */
+.mobile-filter-toggle {
+  display: none;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .mobile-filter-toggle { display: flex; }
+  .store-sidebar { display: none; }
+  .store-sidebar.sidebar-open { display: block; }
+}

@@ -2,49 +2,57 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'is_admin',
+        'phone',
+        'address',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'is_admin'          => 'boolean',
         ];
+    }
+
+    /**
+     * Filament Admin Panel access.
+     * is_admin = true wale users hi andar ja sakte hain.
+     * Fallback: admin@lumiere.com ko hamesha allow karo.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Email se bhi allow karo agar is_admin column kisi wajah se null ho
+        if ($this->email === 'admin@lumiere.com') {
+            return true;
+        }
+
+        return (bool) ($this->is_admin ?? false);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }
