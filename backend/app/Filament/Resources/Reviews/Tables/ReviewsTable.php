@@ -15,26 +15,30 @@ class ReviewsTable
     {
         return $table
             ->columns([
-                TextColumn::make('product_id')
-                    ->numeric()
+                TextColumn::make('product.name')
+                    ->label('Product')
+                    ->searchable()
                     ->sortable(),
+
                 TextColumn::make('author')
                     ->searchable(),
+
                 TextColumn::make('rating')
-                    ->numeric()
+                    ->label('Rating')
+                    ->formatStateUsing(fn($state) => $state . ' ⭐')
                     ->sortable(),
+
+                TextColumn::make('content')
+                    ->label('Review')
+                    ->limit(60)
+                    ->tooltip(fn($record) => $record->content),
+
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Date')
+                    ->dateTime('d M Y')
+                    ->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

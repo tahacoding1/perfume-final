@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -15,24 +17,41 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+
                 TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Email Address')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable(),
+
+                IconColumn::make('is_admin')
+                    ->label('Admin')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-user')
+                    ->trueColor('danger')
+                    ->falseColor('gray'),
+
+                TextColumn::make('orders_count')
+                    ->label('Orders')
+                    ->counts('orders')
+                    ->badge()
+                    ->color('info'),
+
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Joined')
+                    ->dateTime('d M Y')
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                TernaryFilter::make('is_admin')
+                    ->label('Admin Users')
+                    ->trueLabel('Admins only')
+                    ->falseLabel('Customers only'),
             ])
             ->recordActions([
                 EditAction::make(),

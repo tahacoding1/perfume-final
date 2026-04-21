@@ -418,3 +418,69 @@ main {
   .store-sidebar { display: none; }
   .store-sidebar.sidebar-open { display: block; }
 }
+
+/* ─── OTP Steps ─────────────────────────────────────────────── */
+.otp-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.otp-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  position: relative;
+}
+
+.otp-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: calc(50% - 16px);
+  height: 1px;
+  background: var(--border-color);
+  transform: translateY(-50%);
+}
+
+.otp-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.otp-step.active .otp-step-dot {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+}
+
+.otp-step.active {
+  color: var(--text-main);
+}
+
+.otp-step.done .otp-step-dot {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #fff;
+}
+
+.otp-step.done {
+  color: #27ae60;
+}
